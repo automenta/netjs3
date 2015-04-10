@@ -1,4 +1,5 @@
-# Federated Wiki (Node.js server version)
+# netjs3
+## forks of Federated Wiki for Node.JS
 
 > The original wiki was written in a week and cloned within a week after that.
 > The concept was shown to be fruitful while leaving other implementers room to innovate.
@@ -175,8 +176,3 @@ founding project, [SFW](https://github.com/WardCunningham/Smallest-Federated-Wik
 
 The [contributing page](./contributing.md) provides details of the repositories that form the node.js version of Federated Wiki, together with some guidance for developers.
 
-## License
-
-You may use the Wiki under either the
-[MIT License](https://github.com/WardCunningham/wiki/blob/master/mit-license.txt) or the
-[GNU General Public License](https://github.com/WardCunningham/wiki/blob/master/gpl-license.txt) (GPL) Version 2.

@@ -2,7 +2,7 @@ Copyright (c) 2011-2015 Ward Cunningham and other contributors
 
 This software consists of voluntary contributions made by many
 individuals. For exact contribution history, see the revision history
-available at https://github.com/fedwiki/wiki-node
+available at https://github.com/fedwiki/wiki-client
 
 The following license applies to all parts of this software except as
 documented below:
@@ -29,6 +29,14 @@ THE SOFTWARE.
 
 ====
 
-All files located in the node_modules are externally maintained libraries
-used by this software which have their own licenses; we recommend you read
-them, as their terms may differ from the terms above.
+All files located in the pages directory are licensed under a
+Creative Commons Attribution-ShareAlike 4.0 International License.
+
+CC BY-SA 4.0 : http://creativecommons.org/licenses/by-sa/4.0/
+
+====
+
+All files located in the node_modules and client/js are
+externally maintained libraries used by this software which have their
+own licenses; we recommend you read them, as their terms may differ from
+the terms above.
