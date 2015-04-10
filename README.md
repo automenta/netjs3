@@ -18,7 +18,7 @@ Here we have a new wiki repository, and package, which only exist to pull togeth
 
 ## Using Federated Wiki
 
-Learn [how to wiki](http://fed.wiki.org/view/how-to-wiki) by reading [fed.wiki.org](http://fed.wiki.org/view/welcome-visitors)
+Learn [how to wiki](http://fed.wiki.org/view/how-to-wiki) by reading [fed.wiki.org](http://fed.wiki.org/view/index)
 
 ## Running your own Server
 

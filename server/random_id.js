@@ -26,8 +26,10 @@
 
 var crypto = require('crypto');
 
+var defaultUUIDBytes = 16;
+
 var random_id = function(bytes) {
-    return crypto.randomBytes(bytes).toString('base64')
+    return crypto.randomBytes(bytes || defaultUUIDBytes).toString('base64')
 };
 
 module.exports = random_id.random_id = random_id;

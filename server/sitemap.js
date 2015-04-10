@@ -19,7 +19,7 @@ writeFileAtomic = require('write-file-atomic');
 
 mkdirp = require('mkdirp');
 
-synopsis = require('../client').synposis;
+synopsis = require('../client').synopsis;
 
 module.exports = exports = function(argv) {
   var itself, lastEdit, queue, serial, sitemap, sitemapLoc, sitemapPageHandler, sitemapRestore, sitemapSave, sitemapTimeoutHandler, sitemapTimeoutMs, sitemapUpdate, working;

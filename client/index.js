@@ -1,9 +1,17 @@
-//coffescript wrapper
+//console.log("Window Name: " + window.name);
 
-require('coffee-script');
-require('coffee-script/register');
+window.name = window.location.host;
+
+window.wiki = require('./lib/wiki');
+
+require('./lib/legacy');
+
+require('./lib/bind');
+
+require('./lib/plugins');
+
 
 module.exports = {
-    wiki: require('./lib/wiki'),
+    wiki: window.wiki,
     synopsis: require('./lib/synopsis')
 };

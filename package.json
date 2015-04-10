@@ -72,7 +72,6 @@
     "wiki-plugin-roster": "0.1",
     "wiki-plugin-scatter": "0.2",
     "wiki-plugin-twadio": "0.2",
-    "wiki-plugin-txtzyme": "0.2",
     "wiki-plugin-video": "0.2",
     "JSONStream": "latest",
     "async": "latest",
@@ -107,7 +106,7 @@
   },
   "scripts": {
     "start": "node index.js",
-    "test": "mocha"
+    "test": "mocha server/test/*.js"
   },
   "repository": {
     "type": "git",
