@@ -10,18 +10,18 @@ describe('random', function() {
     var a;
     a = random.randomByte();
     expect(a).to.be.a('string');
-    return expect(a.length).to.be(2);
+    return expect(a.length).to.be(1);
   });
   it('should make random byte strings', function() {
     var s;
     s = random.randomBytes(4);
     expect(s).to.be.a('string');
-    return expect(s.length).to.be(8);
+    return expect(s.length).to.be(4);
   });
   return it('should make random item ids', function() {
     var s;
     s = random.itemId();
     expect(s).to.be.a('string');
-    return expect(s.length).to.be(16);
+    return expect(s.length).to.be(8);
   });
 });

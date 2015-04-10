@@ -1649,178 +1649,178 @@ link = require('./link');
 
 random = require('./random');
 
-escape = function(string) {
-  return string.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+escape = function (string) {
+    return string.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 };
 
-textEditor = function($item, item, option) {
-  var $textarea, focusoutHandler, keydownHandler, original, ref, ref1;
-  if (option == null) {
-    option = {};
-  }
-  console.log('textEditor', item.id, option);
-  keydownHandler = function(e) {
-    var $page, $previous, caret, page, prefix, previous, sel, suffix, text;
-    if ((e.altKey || e.ctlKey || e.metaKey) && e.which === 83) {
-      $textarea.focusout();
-      return false;
+textEditor = function ($item, item, option) {
+    var $textarea, focusoutHandler, keydownHandler, original, ref, ref1;
+    if (option == null) {
+        option = {};
     }
-    if ((e.altKey || e.ctlKey || e.metaKey) && e.which === 73) {
-      e.preventDefault();
-      if (!e.shiftKey) {
-        page = $(e.target).parents('.page');
-      }
-      link.doInternalLink("about " + item.type + " plugin", page);
-      return false;
-    }
-    if (item.type === 'paragraph') {
-      sel = getSelectionPos($textarea);
-      if (e.which === $.ui.keyCode.BACKSPACE && sel.start === 0 && sel.start === sel.end) {
-        $previous = $item.prev();
-        previous = itemz.getItem($previous);
-        if (previous.type !== 'paragraph') {
-          return false;
+    console.log('textEditor', item.id, option);
+    keydownHandler = function (e) {
+        var $page, $previous, caret, page, prefix, previous, sel, suffix, text;
+        if ((e.altKey || e.ctlKey || e.metaKey) && e.which === 83) {
+            $textarea.focusout();
+            return false;
         }
-        caret = previous[option.field || 'text'].length;
-        suffix = $textarea.val();
-        $textarea.val('');
-        textEditor($previous, previous, {
-          caret: caret,
-          suffix: suffix
-        });
-        return false;
-      }
-      if (e.which === $.ui.keyCode.ENTER) {
-        if (!sel) {
-          return false;
+        if ((e.altKey || e.ctlKey || e.metaKey) && e.which === 73) {
+            e.preventDefault();
+            if (!e.shiftKey) {
+                page = $(e.target).parents('.page');
+            }
+            link.doInternalLink("about " + item.type + " plugin", page);
+            return false;
         }
-        $page = $item.parent().parent();
-        text = $textarea.val();
-        prefix = text.substring(0, sel.start);
-        suffix = text.substring(sel.end);
-        if (prefix === '') {
-          $textarea.val(suffix);
-          $textarea.focusout();
-          spawnEditor($page, $item.prev(), prefix, true);
+        if (item.type === 'paragraph') {
+            sel = getSelectionPos($textarea);
+            if (e.which === $.ui.keyCode.BACKSPACE && sel.start === 0 && sel.start === sel.end) {
+                $previous = $item.prev();
+                previous = itemz.getItem($previous);
+                if (previous.type !== 'paragraph') {
+                    return false;
+                }
+                caret = previous[option.field || 'text'].length;
+                suffix = $textarea.val();
+                $textarea.val('');
+                textEditor($previous, previous, {
+                    caret: caret,
+                    suffix: suffix
+                });
+                return false;
+            }
+            if (e.which === $.ui.keyCode.ENTER) {
+                if (!sel) {
+                    return false;
+                }
+                $page = $item.parent().parent();
+                text = $textarea.val();
+                prefix = text.substring(0, sel.start);
+                suffix = text.substring(sel.end);
+                if (prefix === '') {
+                    $textarea.val(suffix);
+                    $textarea.focusout();
+                    spawnEditor($page, $item.prev(), prefix, true);
+                } else {
+                    $textarea.val(prefix);
+                    $textarea.focusout();
+                    spawnEditor($page, $item, suffix);
+                }
+                return false;
+            }
+        }
+    };
+    focusoutHandler = function () {
+        var $page;
+        $item.removeClass('textEditing');
+        $textarea.unbind();
+        $page = $item.parents('.page:first');
+        if (item[option.field || 'text'] = $textarea.val()) {
+            plugin["do"]($item.empty(), item);
+            if (option.after) {
+                if (item[option.field || 'text'] === '') {
+                    return;
+                }
+                pageHandler.put($page, {
+                    type: 'add',
+                    id: item.id,
+                    item: item,
+                    after: option.after
+                });
+            } else {
+                if (item[option.field || 'text'] === original) {
+                    return;
+                }
+                pageHandler.put($page, {
+                    type: 'edit',
+                    id: item.id,
+                    item: item
+                });
+            }
         } else {
-          $textarea.val(prefix);
-          $textarea.focusout();
-          spawnEditor($page, $item, suffix);
+            if (!option.after) {
+                pageHandler.put($page, {
+                    type: 'remove',
+                    id: item.id
+                });
+            }
+            $item.remove();
         }
-        return false;
-      }
-    }
-  };
-  focusoutHandler = function() {
-    var $page;
-    $item.removeClass('textEditing');
-    $textarea.unbind();
-    $page = $item.parents('.page:first');
-    if (item[option.field || 'text'] = $textarea.val()) {
-      plugin["do"]($item.empty(), item);
-      if (option.after) {
-        if (item[option.field || 'text'] === '') {
-          return;
-        }
-        pageHandler.put($page, {
-          type: 'add',
-          id: item.id,
-          item: item,
-          after: option.after
-        });
-      } else {
-        if (item[option.field || 'text'] === original) {
-          return;
-        }
-        pageHandler.put($page, {
-          type: 'edit',
-          id: item.id,
-          item: item
-        });
-      }
-    } else {
-      if (!option.after) {
-        pageHandler.put($page, {
-          type: 'remove',
-          id: item.id
-        });
-      }
-      $item.remove();
-    }
-    return null;
-  };
-  if ($item.hasClass('textEditing')) {
-    return;
-  }
-  $item.addClass('textEditing');
-  $item.unbind();
-  original = (ref = item[option.field || 'text']) != null ? ref : '';
-  $textarea = $("<textarea>" + (escape(original)) + (escape((ref1 = option.suffix) != null ? ref1 : '')) + "</textarea>").focusout(focusoutHandler).bind('keydown', keydownHandler);
-  $item.html($textarea);
-  if (option.caret) {
-    return setCaretPosition($textarea, option.caret);
-  } else if (option.append) {
-    setCaretPosition($textarea, $textarea.val().length);
-    return $textarea.scrollTop($textarea[0].scrollHeight - $textarea.height());
-  } else {
-    return $textarea.focus();
-  }
-};
-
-spawnEditor = function($page, $before, text) {
-  var $item, before, item;
-  item = {
-    type: 'paragraph',
-    id: random.itemId(),
-    text: text
-  };
-  $item = $("<div class=\"item paragraph\" data-id=" + item.id + "></div>");
-  $item.data('item', item).data('pageElement', $page);
-  $before.after($item);
-  plugin["do"]($item, item);
-  before = itemz.getItem($before);
-  return textEditor($item, item, {
-    after: before != null ? before.id : void 0
-  });
-};
-
-getSelectionPos = function($textarea) {
-  var el, iePos, sel;
-  el = $textarea.get(0);
-  if (document.selection) {
-    el.focus();
-    sel = document.selection.createRange();
-    sel.moveStart('character', -el.value.length);
-    iePos = sel.text.length;
-    return {
-      start: iePos,
-      end: iePos
+        return null;
     };
-  } else {
-    return {
-      start: el.selectionStart,
-      end: el.selectionEnd
-    };
-  }
+    if ($item.hasClass('textEditing')) {
+        return;
+    }
+    $item.addClass('textEditing');
+    $item.unbind();
+    original = (ref = item[option.field || 'text']) != null ? ref : '';
+    $textarea = $("<textarea>" + (escape(original)) + (escape((ref1 = option.suffix) != null ? ref1 : '')) + "</textarea>").focusout(focusoutHandler).bind('keydown', keydownHandler);
+    $item.html($textarea);
+    if (option.caret) {
+        return setCaretPosition($textarea, option.caret);
+    } else if (option.append) {
+        setCaretPosition($textarea, $textarea.val().length);
+        return $textarea.scrollTop($textarea[0].scrollHeight - $textarea.height());
+    } else {
+        return $textarea.focus();
+    }
 };
 
-setCaretPosition = function($textarea, caretPos) {
-  var el, range;
-  el = $textarea.get(0);
-  if (el != null) {
-    if (el.createTextRange) {
-      range = el.createTextRange();
-      range.move("character", caretPos);
-      range.select();
+spawnEditor = function ($page, $before, text) {
+    var $item, before, item;
+    item = {
+        type: 'paragraph',
+        id: random.itemId(),
+        text: text
+    };
+    $item = $("<div class=\"item paragraph\" data-id=" + item.id + "></div>");
+    $item.data('item', item).data('pageElement', $page);
+    $before.after($item);
+    plugin["do"]($item, item);
+    before = itemz.getItem($before);
+    return textEditor($item, item, {
+        after: before != null ? before.id : void 0
+    });
+};
+
+getSelectionPos = function ($textarea) {
+    var el, iePos, sel;
+    el = $textarea.get(0);
+    if (document.selection) {
+        el.focus();
+        sel = document.selection.createRange();
+        sel.moveStart('character', -el.value.length);
+        iePos = sel.text.length;
+        return {
+            start: iePos,
+            end: iePos
+        };
     } else {
-      el.setSelectionRange(caretPos, caretPos);
+        return {
+            start: el.selectionStart,
+            end: el.selectionEnd
+        };
     }
-    return el.focus();
-  }
+};
+
+setCaretPosition = function ($textarea, caretPos) {
+    var el, range;
+    el = $textarea.get(0);
+    if (el != null) {
+        if (el.createTextRange) {
+            range = el.createTextRange();
+            range.move("character", caretPos);
+            range.select();
+        } else {
+            el.setSelectionRange(caretPos, caretPos);
+        }
+        return el.focus();
+    }
 };
 
 module.exports = {
-  textEditor: textEditor
+    textEditor: textEditor
 };
 
 },{"./itemz":12,"./link":14,"./pageHandler":18,"./plugin":21,"./random":23}],9:[function(require,module,exports){
@@ -1841,202 +1841,202 @@ synopsis = require('./synopsis');
 
 drop = require('./drop');
 
-escape = function(line) {
-  return line.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
+escape = function (line) {
+    return line.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
 };
 
-emit = function($item, item) {
-  var showMenu, showPrompt;
-  $item.append('<p>Double-Click to Edit<br>Drop Text or Image to Insert</p>');
-  showMenu = function() {
-    var column, i, info, len, menu, ref;
-    menu = $item.find('p').append("<br>Or Choose a Plugin\n<center>\n<table style=\"text-align:left;\">\n<tr><td><ul id=format><td><ul id=data><td><ul id=other>");
-    ref = window.catalog;
-    for (i = 0, len = ref.length; i < len; i++) {
-      info = ref[i];
-      column = info.category || 'other';
-      if (column !== 'format' && column !== 'data') {
-        column = 'other';
-      }
-      menu.find('#' + column).append("<li><a class=\"menu\" href=\"#\" title=\"" + info.title + "\">" + info.name + "</a></li>");
-    }
-    return menu.find('a.menu').click(function(evt) {
-      $item.removeClass('factory').addClass(item.type = evt.target.text.toLowerCase());
-      $item.unbind();
-      return editor.textEditor($item, item);
-    });
-  };
-  showPrompt = function() {
-    return $item.append("<p>" + (resolve.resolveLinks(item.prompt, escape)) + "</b>");
-  };
-  if (item.prompt) {
-    return showPrompt();
-  } else if (window.catalog != null) {
-    return showMenu();
-  } else {
-    return $.getJSON('/system/factories.json', function(data) {
-      window.catalog = data;
-      return showMenu();
-    });
-  }
-};
-
-bind = function($item, item) {
-  var addReference, addVideo, punt, readFile, syncEditAction;
-  syncEditAction = function() {
-    var $page, err;
-    $item.empty().unbind();
-    $item.removeClass("factory").addClass(item.type);
-    $page = $item.parents('.page:first');
-    try {
-      $item.data('pageElement', $page);
-      $item.data('item', item);
-      plugin.getPlugin(item.type, function(plugin) {
-        plugin.emit($item, item);
-        return plugin.bind($item, item);
-      });
-    } catch (_error) {
-      err = _error;
-      $item.append("<p class='error'>" + err + "</p>");
-    }
-    return pageHandler.put($page, {
-      type: 'edit',
-      id: item.id,
-      item: item
-    });
-  };
-  punt = function(data) {
-    item.prompt = "Unexpected Item\nWe can't make sense of the drop.\nTry something else or see [[About Factory Plugin]].";
-    data.userAgent = navigator.userAgent;
-    item.punt = data;
-    return syncEditAction();
-  };
-  addReference = function(data) {
-    return $.getJSON("http://" + data.site + "/" + data.slug + ".json", function(remote) {
-      item.type = 'reference';
-      item.site = data.site;
-      item.slug = data.slug;
-      item.title = remote.title || data.slug;
-      item.text = synopsis(remote);
-      syncEditAction();
-      if (item.site != null) {
-        return neighborhood.registerNeighbor(item.site);
-      }
-    });
-  };
-  addVideo = function(video) {
-    item.type = 'video';
-    item.text = video.text + "\n(double-click to edit caption)\n";
-    return syncEditAction();
-  };
-  readFile = function(file) {
-    var majorType, minorType, reader, ref;
-    if (file != null) {
-      ref = file.type.split("/"), majorType = ref[0], minorType = ref[1];
-      reader = new FileReader();
-      if (majorType === "image") {
-        reader.onload = function(loadEvent) {
-          item.type = 'image';
-          item.url = loadEvent.target.result;
-          item.caption || (item.caption = "Uploaded image");
-          return syncEditAction();
-        };
-        return reader.readAsDataURL(file);
-      } else if (majorType === "text") {
-        reader.onload = function(loadEvent) {
-          var array, result;
-          result = loadEvent.target.result;
-          if (minorType === 'csv') {
-            item.type = 'data';
-            item.columns = (array = csvToArray(result))[0];
-            item.data = arrayToJson(array);
-            item.text = file.fileName;
-          } else {
-            item.type = 'paragraph';
-            item.text = result;
-          }
-          return syncEditAction();
-        };
-        return reader.readAsText(file);
-      } else {
-        return punt({
-          file: file
+emit = function ($item, item) {
+    var showMenu, showPrompt;
+    $item.append('<p>Double-Click to Edit<br>Drop Text or Image to Insert</p>');
+    showMenu = function () {
+        var column, i, info, len, menu, ref;
+        menu = $item.find('p').append("<br>Or Choose a Plugin\n<center>\n<table style=\"text-align:left;\">\n<tr><td><ul id=format><td><ul id=data><td><ul id=other>");
+        ref = window.catalog;
+        for (i = 0, len = ref.length; i < len; i++) {
+            info = ref[i];
+            column = info.category || 'other';
+            if (column !== 'format' && column !== 'data') {
+                column = 'other';
+            }
+            menu.find('#' + column).append("<li><a class=\"menu\" href=\"#\" title=\"" + info.title + "\">" + info.name + "</a></li>");
+        }
+        return menu.find('a.menu').click(function (evt) {
+            $item.removeClass('factory').addClass(item.type = evt.target.text.toLowerCase());
+            $item.unbind();
+            return editor.textEditor($item, item);
         });
-      }
-    }
-  };
-  $item.dblclick(function(e) {
-    if (e.shiftKey) {
-      return editor.textEditor($item, item, {
-        field: 'prompt'
-      });
+    };
+    showPrompt = function () {
+        return $item.append("<p>" + (resolve.resolveLinks(item.prompt, escape)) + "</b>");
+    };
+    if (item.prompt) {
+        return showPrompt();
+    } else if (window.catalog != null) {
+        return showMenu();
     } else {
-      $item.removeClass('factory').addClass(item.type = 'paragraph');
-      $item.unbind();
-      return editor.textEditor($item, item);
+        return $.getJSON('/system/factories.json', function (data) {
+            window.catalog = data;
+            return showMenu();
+        });
     }
-  });
-  $item.bind('dragenter', function(evt) {
-    return evt.preventDefault();
-  });
-  $item.bind('dragover', function(evt) {
-    return evt.preventDefault();
-  });
-  return $item.bind("drop", drop.dispatch({
-    page: addReference,
-    file: readFile,
-    video: addVideo,
-    punt: punt
-  }));
 };
 
-csvToArray = function(strData, strDelimiter) {
-  var arrData, arrMatches, objPattern, strMatchedDelimiter, strMatchedValue;
-  strDelimiter = strDelimiter || ",";
-  objPattern = new RegExp("(\\" + strDelimiter + "|\\r?\\n|\\r|^)" + "(?:\"([^\"]*(?:\"\"[^\"]*)*)\"|" + "([^\"\\" + strDelimiter + "\\r\\n]*))", "gi");
-  arrData = [[]];
-  arrMatches = null;
-  while (arrMatches = objPattern.exec(strData)) {
-    strMatchedDelimiter = arrMatches[1];
-    if (strMatchedDelimiter.length && (strMatchedDelimiter !== strDelimiter)) {
-      arrData.push([]);
-    }
-    if (arrMatches[2]) {
-      strMatchedValue = arrMatches[2].replace(new RegExp("\"\"", "g"), "\"");
-    } else {
-      strMatchedValue = arrMatches[3];
-    }
-    arrData[arrData.length - 1].push(strMatchedValue);
-  }
-  return arrData;
+bind = function ($item, item) {
+    var addReference, addVideo, punt, readFile, syncEditAction;
+    syncEditAction = function () {
+        var $page, err;
+        $item.empty().unbind();
+        $item.removeClass("factory").addClass(item.type);
+        $page = $item.parents('.page:first');
+        try {
+            $item.data('pageElement', $page);
+            $item.data('item', item);
+            plugin.getPlugin(item.type, function (plugin) {
+                plugin.emit($item, item);
+                return plugin.bind($item, item);
+            });
+        } catch (_error) {
+            err = _error;
+            $item.append("<p class='error'>" + err + "</p>");
+        }
+        return pageHandler.put($page, {
+            type: 'edit',
+            id: item.id,
+            item: item
+        });
+    };
+    punt = function (data) {
+        item.prompt = "Unexpected Item\nWe can't make sense of the drop.\nTry something else or see [[About Factory Plugin]].";
+        data.userAgent = navigator.userAgent;
+        item.punt = data;
+        return syncEditAction();
+    };
+    addReference = function (data) {
+        return $.getJSON("http://" + data.site + "/" + data.slug + ".json", function (remote) {
+            item.type = 'reference';
+            item.site = data.site;
+            item.slug = data.slug;
+            item.title = remote.title || data.slug;
+            item.text = synopsis(remote);
+            syncEditAction();
+            if (item.site != null) {
+                return neighborhood.registerNeighbor(item.site);
+            }
+        });
+    };
+    addVideo = function (video) {
+        item.type = 'video';
+        item.text = video.text + "\n(double-click to edit caption)\n";
+        return syncEditAction();
+    };
+    readFile = function (file) {
+        var majorType, minorType, reader, ref;
+        if (file != null) {
+            ref = file.type.split("/"), majorType = ref[0], minorType = ref[1];
+            reader = new FileReader();
+            if (majorType === "image") {
+                reader.onload = function (loadEvent) {
+                    item.type = 'image';
+                    item.url = loadEvent.target.result;
+                    item.caption || (item.caption = "Uploaded image");
+                    return syncEditAction();
+                };
+                return reader.readAsDataURL(file);
+            } else if (majorType === "text") {
+                reader.onload = function (loadEvent) {
+                    var array, result;
+                    result = loadEvent.target.result;
+                    if (minorType === 'csv') {
+                        item.type = 'data';
+                        item.columns = (array = csvToArray(result))[0];
+                        item.data = arrayToJson(array);
+                        item.text = file.fileName;
+                    } else {
+                        item.type = 'paragraph';
+                        item.text = result;
+                    }
+                    return syncEditAction();
+                };
+                return reader.readAsText(file);
+            } else {
+                return punt({
+                    file: file
+                });
+            }
+        }
+    };
+    $item.dblclick(function (e) {
+        if (e.shiftKey) {
+            return editor.textEditor($item, item, {
+                field: 'prompt'
+            });
+        } else {
+            $item.removeClass('factory').addClass(item.type = 'paragraph');
+            $item.unbind();
+            return editor.textEditor($item, item);
+        }
+    });
+    $item.bind('dragenter', function (evt) {
+        return evt.preventDefault();
+    });
+    $item.bind('dragover', function (evt) {
+        return evt.preventDefault();
+    });
+    return $item.bind("drop", drop.dispatch({
+        page: addReference,
+        file: readFile,
+        video: addVideo,
+        punt: punt
+    }));
 };
 
-arrayToJson = function(array) {
-  var cols, i, len, results, row, rowToObject;
-  cols = array.shift();
-  rowToObject = function(row) {
-    var i, k, len, obj, ref, ref1, v;
-    obj = {};
-    ref = _.zip(cols, row);
-    for (i = 0, len = ref.length; i < len; i++) {
-      ref1 = ref[i], k = ref1[0], v = ref1[1];
-      if ((v != null) && (v.match(/\S/)) && v !== 'NULL') {
-        obj[k] = v;
-      }
+csvToArray = function (strData, strDelimiter) {
+    var arrData, arrMatches, objPattern, strMatchedDelimiter, strMatchedValue;
+    strDelimiter = strDelimiter || ",";
+    objPattern = new RegExp("(\\" + strDelimiter + "|\\r?\\n|\\r|^)" + "(?:\"([^\"]*(?:\"\"[^\"]*)*)\"|" + "([^\"\\" + strDelimiter + "\\r\\n]*))", "gi");
+    arrData = [[]];
+    arrMatches = null;
+    while (arrMatches = objPattern.exec(strData)) {
+        strMatchedDelimiter = arrMatches[1];
+        if (strMatchedDelimiter.length && (strMatchedDelimiter !== strDelimiter)) {
+            arrData.push([]);
+        }
+        if (arrMatches[2]) {
+            strMatchedValue = arrMatches[2].replace(new RegExp("\"\"", "g"), "\"");
+        } else {
+            strMatchedValue = arrMatches[3];
+        }
+        arrData[arrData.length - 1].push(strMatchedValue);
     }
-    return obj;
-  };
-  results = [];
-  for (i = 0, len = array.length; i < len; i++) {
-    row = array[i];
-    results.push(rowToObject(row));
-  }
-  return results;
+    return arrData;
+};
+
+arrayToJson = function (array) {
+    var cols, i, len, results, row, rowToObject;
+    cols = array.shift();
+    rowToObject = function (row) {
+        var i, k, len, obj, ref, ref1, v;
+        obj = {};
+        ref = _.zip(cols, row);
+        for (i = 0, len = ref.length; i < len; i++) {
+            ref1 = ref[i], k = ref1[0], v = ref1[1];
+            if ((v != null) && (v.match(/\S/)) && v !== 'NULL') {
+                obj[k] = v;
+            }
+        }
+        return obj;
+    };
+    results = [];
+    for (i = 0, len = array.length; i < len; i++) {
+        row = array[i];
+        results.push(rowToObject(row));
+    }
+    return results;
 };
 
 module.exports = {
-  emit: emit,
-  bind: bind
+    emit: emit,
+    bind: bind
 };
 
 },{"./drop":7,"./editor":8,"./neighborhood":15,"./pageHandler":18,"./plugin":21,"./resolve":26,"./synopsis":31}],10:[function(require,module,exports){
@@ -3323,32 +3323,44 @@ window.plugins = {
 };
 
 },{"./factory":9,"./future":10,"./image":11,"./paragraph":19,"./reference":24}],23:[function(require,module,exports){
-// Generated by CoffeeScript 1.9.1
+"use strict";
+
 var itemId, randomByte, randomBytes;
 
-randomByte = function() {
-  return (((1 + Math.random()) * 0x100) | 0).toString(16).substring(1);
-};
-
-randomBytes = function(n) {
-  return ((function() {
-    var i, ref, results;
-    results = [];
-    for (i = 1, ref = n; 1 <= ref ? i <= ref : i >= ref; 1 <= ref ? i++ : i--) {
-      results.push(randomByte());
+var rchars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz_";
+randomBytes = function (n) {
+    var r = '';
+    for (var i = 0; i < n; i++) {
+        r += rchars[ Math.floor(Math.random() * rchars.length) ];
     }
-    return results;
-  })()).join('');
+    return r;
+}
+
+randomByte = function () {
+    return randomBytes(1);
+    //return (((1 + Math.random()) * 0x100) | 0).toString(16).substring(1);
 };
 
-itemId = function() {
-  return randomBytes(8);
+//
+//randomBytes = function(n) {
+//  return ((function() {
+//    var i, ref, results;
+//    results = [];
+//    for (i = 1, ref = n; 1 <= ref ? i <= ref : i >= ref; 1 <= ref ? i++ : i--) {
+//      results.push(randomByte());
+//    }
+//    return results;
+//  })()).join('');
+//};
+
+itemId = function () {
+    return randomBytes(8);
 };
 
 module.exports = {
-  randomByte: randomByte,
-  randomBytes: randomBytes,
-  itemId: itemId
+    randomByte: randomByte,
+    randomBytes: randomBytes,
+    itemId: itemId
 };
 
 },{}],24:[function(require,module,exports){
@@ -14865,19 +14877,19 @@ describe('random', function() {
     var a;
     a = random.randomByte();
     expect(a).to.be.a('string');
-    return expect(a.length).to.be(2);
+    return expect(a.length).to.be(1);
   });
   it('should make random byte strings', function() {
     var s;
     s = random.randomBytes(4);
     expect(s).to.be.a('string');
-    return expect(s.length).to.be(8);
+    return expect(s.length).to.be(4);
   });
   return it('should make random item ids', function() {
     var s;
     s = random.itemId();
     expect(s).to.be.a('string');
-    return expect(s.length).to.be(16);
+    return expect(s.length).to.be(8);
   });
 });
 

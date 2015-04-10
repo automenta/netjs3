@@ -11,176 +11,176 @@ link = require('./link');
 
 random = require('./random');
 
-escape = function(string) {
-  return string.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+escape = function (string) {
+    return string.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 };
 
-textEditor = function($item, item, option) {
-  var $textarea, focusoutHandler, keydownHandler, original, ref, ref1;
-  if (option == null) {
-    option = {};
-  }
-  console.log('textEditor', item.id, option);
-  keydownHandler = function(e) {
-    var $page, $previous, caret, page, prefix, previous, sel, suffix, text;
-    if ((e.altKey || e.ctlKey || e.metaKey) && e.which === 83) {
-      $textarea.focusout();
-      return false;
+textEditor = function ($item, item, option) {
+    var $textarea, focusoutHandler, keydownHandler, original, ref, ref1;
+    if (option == null) {
+        option = {};
     }
-    if ((e.altKey || e.ctlKey || e.metaKey) && e.which === 73) {
-      e.preventDefault();
-      if (!e.shiftKey) {
-        page = $(e.target).parents('.page');
-      }
-      link.doInternalLink("about " + item.type + " plugin", page);
-      return false;
-    }
-    if (item.type === 'paragraph') {
-      sel = getSelectionPos($textarea);
-      if (e.which === $.ui.keyCode.BACKSPACE && sel.start === 0 && sel.start === sel.end) {
-        $previous = $item.prev();
-        previous = itemz.getItem($previous);
-        if (previous.type !== 'paragraph') {
-          return false;
+    console.log('textEditor', item.id, option);
+    keydownHandler = function (e) {
+        var $page, $previous, caret, page, prefix, previous, sel, suffix, text;
+        if ((e.altKey || e.ctlKey || e.metaKey) && e.which === 83) {
+            $textarea.focusout();
+            return false;
         }
-        caret = previous[option.field || 'text'].length;
-        suffix = $textarea.val();
-        $textarea.val('');
-        textEditor($previous, previous, {
-          caret: caret,
-          suffix: suffix
-        });
-        return false;
-      }
-      if (e.which === $.ui.keyCode.ENTER) {
-        if (!sel) {
-          return false;
+        if ((e.altKey || e.ctlKey || e.metaKey) && e.which === 73) {
+            e.preventDefault();
+            if (!e.shiftKey) {
+                page = $(e.target).parents('.page');
+            }
+            link.doInternalLink("about " + item.type + " plugin", page);
+            return false;
         }
-        $page = $item.parent().parent();
-        text = $textarea.val();
-        prefix = text.substring(0, sel.start);
-        suffix = text.substring(sel.end);
-        if (prefix === '') {
-          $textarea.val(suffix);
-          $textarea.focusout();
-          spawnEditor($page, $item.prev(), prefix, true);
+        if (item.type === 'paragraph') {
+            sel = getSelectionPos($textarea);
+            if (e.which === $.ui.keyCode.BACKSPACE && sel.start === 0 && sel.start === sel.end) {
+                $previous = $item.prev();
+                previous = itemz.getItem($previous);
+                if (previous.type !== 'paragraph') {
+                    return false;
+                }
+                caret = previous[option.field || 'text'].length;
+                suffix = $textarea.val();
+                $textarea.val('');
+                textEditor($previous, previous, {
+                    caret: caret,
+                    suffix: suffix
+                });
+                return false;
+            }
+            if (e.which === $.ui.keyCode.ENTER) {
+                if (!sel) {
+                    return false;
+                }
+                $page = $item.parent().parent();
+                text = $textarea.val();
+                prefix = text.substring(0, sel.start);
+                suffix = text.substring(sel.end);
+                if (prefix === '') {
+                    $textarea.val(suffix);
+                    $textarea.focusout();
+                    spawnEditor($page, $item.prev(), prefix, true);
+                } else {
+                    $textarea.val(prefix);
+                    $textarea.focusout();
+                    spawnEditor($page, $item, suffix);
+                }
+                return false;
+            }
+        }
+    };
+    focusoutHandler = function () {
+        var $page;
+        $item.removeClass('textEditing');
+        $textarea.unbind();
+        $page = $item.parents('.page:first');
+        if (item[option.field || 'text'] = $textarea.val()) {
+            plugin["do"]($item.empty(), item);
+            if (option.after) {
+                if (item[option.field || 'text'] === '') {
+                    return;
+                }
+                pageHandler.put($page, {
+                    type: 'add',
+                    id: item.id,
+                    item: item,
+                    after: option.after
+                });
+            } else {
+                if (item[option.field || 'text'] === original) {
+                    return;
+                }
+                pageHandler.put($page, {
+                    type: 'edit',
+                    id: item.id,
+                    item: item
+                });
+            }
         } else {
-          $textarea.val(prefix);
-          $textarea.focusout();
-          spawnEditor($page, $item, suffix);
+            if (!option.after) {
+                pageHandler.put($page, {
+                    type: 'remove',
+                    id: item.id
+                });
+            }
+            $item.remove();
         }
-        return false;
-      }
-    }
-  };
-  focusoutHandler = function() {
-    var $page;
-    $item.removeClass('textEditing');
-    $textarea.unbind();
-    $page = $item.parents('.page:first');
-    if (item[option.field || 'text'] = $textarea.val()) {
-      plugin["do"]($item.empty(), item);
-      if (option.after) {
-        if (item[option.field || 'text'] === '') {
-          return;
-        }
-        pageHandler.put($page, {
-          type: 'add',
-          id: item.id,
-          item: item,
-          after: option.after
-        });
-      } else {
-        if (item[option.field || 'text'] === original) {
-          return;
-        }
-        pageHandler.put($page, {
-          type: 'edit',
-          id: item.id,
-          item: item
-        });
-      }
-    } else {
-      if (!option.after) {
-        pageHandler.put($page, {
-          type: 'remove',
-          id: item.id
-        });
-      }
-      $item.remove();
-    }
-    return null;
-  };
-  if ($item.hasClass('textEditing')) {
-    return;
-  }
-  $item.addClass('textEditing');
-  $item.unbind();
-  original = (ref = item[option.field || 'text']) != null ? ref : '';
-  $textarea = $("<textarea>" + (escape(original)) + (escape((ref1 = option.suffix) != null ? ref1 : '')) + "</textarea>").focusout(focusoutHandler).bind('keydown', keydownHandler);
-  $item.html($textarea);
-  if (option.caret) {
-    return setCaretPosition($textarea, option.caret);
-  } else if (option.append) {
-    setCaretPosition($textarea, $textarea.val().length);
-    return $textarea.scrollTop($textarea[0].scrollHeight - $textarea.height());
-  } else {
-    return $textarea.focus();
-  }
-};
-
-spawnEditor = function($page, $before, text) {
-  var $item, before, item;
-  item = {
-    type: 'paragraph',
-    id: random.itemId(),
-    text: text
-  };
-  $item = $("<div class=\"item paragraph\" data-id=" + item.id + "></div>");
-  $item.data('item', item).data('pageElement', $page);
-  $before.after($item);
-  plugin["do"]($item, item);
-  before = itemz.getItem($before);
-  return textEditor($item, item, {
-    after: before != null ? before.id : void 0
-  });
-};
-
-getSelectionPos = function($textarea) {
-  var el, iePos, sel;
-  el = $textarea.get(0);
-  if (document.selection) {
-    el.focus();
-    sel = document.selection.createRange();
-    sel.moveStart('character', -el.value.length);
-    iePos = sel.text.length;
-    return {
-      start: iePos,
-      end: iePos
+        return null;
     };
-  } else {
-    return {
-      start: el.selectionStart,
-      end: el.selectionEnd
-    };
-  }
+    if ($item.hasClass('textEditing')) {
+        return;
+    }
+    $item.addClass('textEditing');
+    $item.unbind();
+    original = (ref = item[option.field || 'text']) != null ? ref : '';
+    $textarea = $("<textarea>" + (escape(original)) + (escape((ref1 = option.suffix) != null ? ref1 : '')) + "</textarea>").focusout(focusoutHandler).bind('keydown', keydownHandler);
+    $item.html($textarea);
+    if (option.caret) {
+        return setCaretPosition($textarea, option.caret);
+    } else if (option.append) {
+        setCaretPosition($textarea, $textarea.val().length);
+        return $textarea.scrollTop($textarea[0].scrollHeight - $textarea.height());
+    } else {
+        return $textarea.focus();
+    }
 };
 
-setCaretPosition = function($textarea, caretPos) {
-  var el, range;
-  el = $textarea.get(0);
-  if (el != null) {
-    if (el.createTextRange) {
-      range = el.createTextRange();
-      range.move("character", caretPos);
-      range.select();
+spawnEditor = function ($page, $before, text) {
+    var $item, before, item;
+    item = {
+        type: 'paragraph',
+        id: random.itemId(),
+        text: text
+    };
+    $item = $("<div class=\"item paragraph\" data-id=" + item.id + "></div>");
+    $item.data('item', item).data('pageElement', $page);
+    $before.after($item);
+    plugin["do"]($item, item);
+    before = itemz.getItem($before);
+    return textEditor($item, item, {
+        after: before != null ? before.id : void 0
+    });
+};
+
+getSelectionPos = function ($textarea) {
+    var el, iePos, sel;
+    el = $textarea.get(0);
+    if (document.selection) {
+        el.focus();
+        sel = document.selection.createRange();
+        sel.moveStart('character', -el.value.length);
+        iePos = sel.text.length;
+        return {
+            start: iePos,
+            end: iePos
+        };
     } else {
-      el.setSelectionRange(caretPos, caretPos);
+        return {
+            start: el.selectionStart,
+            end: el.selectionEnd
+        };
     }
-    return el.focus();
-  }
+};
+
+setCaretPosition = function ($textarea, caretPos) {
+    var el, range;
+    el = $textarea.get(0);
+    if (el != null) {
+        if (el.createTextRange) {
+            range = el.createTextRange();
+            range.move("character", caretPos);
+            range.select();
+        } else {
+            el.setSelectionRange(caretPos, caretPos);
+        }
+        return el.focus();
+    }
 };
 
 module.exports = {
-  textEditor: textEditor
+    textEditor: textEditor
 };
