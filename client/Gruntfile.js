@@ -124,7 +124,13 @@ module.exports = function (grunt) {
   });
 
   // build without sourcemaps
-  grunt.registerTask('build', ['clean', 'mochaTest', 'browserify:packageClient', 'browserify:testClient', 'uglify:packageClient']);
+  grunt.registerTask('build', [
+    'clean',
+    'mochaTest',
+    'browserify:packageClient',
+    'browserify:testClient',
+    'uglify:packageClient'
+  ]);
 
   // the default is to do the production build.
   grunt.registerTask('default', ['build']);

@@ -1,17 +1,24 @@
 //console.log("Window Name: " + window.name);
 
-window.name = window.location.host;
+var wiki = require('./lib/wiki');
 
-window.wiki = require('./lib/wiki');
+try {
+    window.name = window.location.host;
 
-require('./lib/legacy');
+    window.wiki = wiki;
 
-require('./lib/bind');
+    require('./lib/legacy');
 
-require('./lib/plugins');
+    require('./lib/bind');
+
+    require('./lib/plugins');
 
 
-module.exports = {
-    wiki: window.wiki,
-    synopsis: require('./lib/synopsis')
-};
+
+}
+catch (e) {
+    module.exports = {
+        wiki: wiki,
+        synopsis: require('./lib/synopsis')
+    };
+}
