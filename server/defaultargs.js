@@ -26,11 +26,12 @@ module.exports = function (argv) {
     argv.client || (argv.client = __dirname + '/../client')//path.join(argv.packageDir, 'client', 'client'));
     argv.db || (argv.db = path.join(argv.data, 'pages'));
     argv.status || (argv.status = path.join(argv.data, 'status'));
+    argv.env || (argv.env = "development");
     if (argv.port !== 80) {
         argv.url || (argv.url = 'http://localhost' + (':' + argv.port));
     }
     argv.id || (argv.id = path.join(argv.status, 'persona.identity'));
-    argv.uploadLimit || (argv.uploadLimit = '5mb');
+    argv.uploadLimit || (argv.uploadLimit = '1mb');
     argv.neighbors || (argv.neighbors = '');
     if (typeof argv.database === 'string') {
         argv.database = JSON.parse(argv.database);
@@ -39,12 +40,13 @@ module.exports = function (argv) {
     (base = argv.database).type || (base.type = './page');
     if (argv.database.type.charAt(0) === '.') {
         if (argv.database.type !== './page') {
-            console.log("\n\nWARNING: This storage option is depeciated.");
+            console.log("\n\nWARNING: This storage option is deprecated.");
             console.log("    See ReadMe for details of the changes required.\n\n");
         }
     } else {
         argv.database.type = 'wiki-storage-' + argv.database.type;
     }
+    argv.compress = true; //compress HTTP responses
     argv.root = path.resolve(argv.root);
     argv.packageDir = path.resolve(argv.packageDir);
     argv.data = path.resolve(argv.data);

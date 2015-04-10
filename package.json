@@ -77,6 +77,7 @@
     "async": "latest",
     "body-parser": "latest",
     "client-sessions": "latest",
+    "compression": "latest",
     "cookie-parser": "latest",
     "errorhandler": "latest",
     "event-stream": "*",
@@ -90,8 +91,10 @@
     "sanitize-caja": "latest",
     "lodash": "latest",
     "write-file-atomic": "latest",
-    "ws": "latest",
-    "pouchdb": "latest"
+    "pouchdb": "latest",
+    "geopouch": "latest",
+    "memdown": "latest",
+    "telepathine": "latest"
   },
 
 

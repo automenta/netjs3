@@ -97,9 +97,14 @@ render = function (page) {
 
 module.exports = exports = function (argv) {
     var app, authenticated, cors, favLoc, getOwner, index, is_authenticated, log, loga, oops, ourErrorHandler, owner, pagehandler, persona, remoteGet, setOwner, sitemapLoc, sitemaphandler;
-    app = express();
+
     argv = defargs(argv);
+
+    app = express({
+        env: argv.env
+    });
     app.startOpts = argv;
+
     log = function () {
         var stuff;
         stuff = 1 <= arguments.length ? slice.call(arguments, 0) : [];
@@ -202,6 +207,10 @@ module.exports = exports = function (argv) {
         layout: false
     });
     app.use(logger('tiny'));
+    // Use gzip compression
+    if (argv.compress) {
+        app.use(require('compression')());
+    }
     app.use(cookieParser());
     app.use(bodyParser.json({
         limit: argv.uploadLimit
@@ -213,7 +222,7 @@ module.exports = exports = function (argv) {
     app.use(methodOverride());
     app.use(sessions({
         cookieName: 'session',
-        secret: 'notsosecret-needsreplacing',
+        secret: 'dsklfjdskljfdklsjlk-needsreplacing',
         duration: 24 * 60 * 60 * 1000,
         activeDuration: 1000 * 60 * 5,
         cookie: {
@@ -222,7 +231,12 @@ module.exports = exports = function (argv) {
     }));
     app.use(persona.authenticate_session(getOwner));
     app.use(ourErrorHandler);
-    app.use(express.static(argv.client + '/client'));
+
+    var staticOpt = {
+        'maxAge': 3153600000
+    };
+    app.use(express.static(argv.client + '/client', staticOpt));
+
     glob("wiki-plugin-*/client", {
         cwd: argv.packageDir
     }, function (e, plugins) {
@@ -230,7 +244,8 @@ module.exports = exports = function (argv) {
             var pluginName, pluginPath;
             pluginName = plugin.slice(12, -7);
             pluginPath = '/plugins/' + pluginName;
-            return app.use(pluginPath, express.static(path.join(argv.packageDir, plugin)));
+            return app.use(pluginPath,
+                express.static(path.join(argv.packageDir, plugin), staticOpt));
         });
     });
     if ('development' === app.get('env')) {

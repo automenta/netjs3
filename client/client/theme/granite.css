@@ -10,7 +10,8 @@ h1 {
   font-weight: 400; }
 
 body {
-	background: url("/theme/stoneSeamless.jpg"); }
+  background: black;
+}
 
 .journal {
   border-radius: 5px; }

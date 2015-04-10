@@ -203,7 +203,11 @@ emitFooter = function($footer, pageObject) {
   var host, slug;
   host = pageObject.getRemoteSite(location.host);
   slug = pageObject.getSlug();
-  return $footer.append("<a id=\"license\" href=\"http://creativecommons.org/licenses/by-sa/4.0/\">CC BY-SA 4.0</a> .\n<a class=\"show-page-source\" href=\"/" + slug + ".json?random=" + (random.randomBytes(4)) + "\" title=\"source\">JSON</a> .\n<a href= \"//" + host + "/" + slug + ".html\" target=\"" + host + "\">" + host + " </a>");
+  return $footer.append(
+      //"<a id=\"license\" href=\"http://creativecommons.org/licenses/by-sa/4.0/\">CC BY-SA 4.0</a> .\n' " +
+      "<a class=\"show-page-source\" href=\"/" + slug + ".json" +
+          "?random=" + (random.randomBytes(4)) +
+      "\" title=\"source\">JSON</a> <a href= \"//" + host + "/" + slug + ".html\" target=\"" + host + "\">" + host + " </a>");
 };
 
 editDate = function(journal) {
@@ -275,7 +279,7 @@ emitTwins = function($page) {
       })();
       twins.push((flags.join('&nbsp;')) + " " + legend);
     }
-    if (twins) {
+    if (twins && twins.length > 0) {
       return $page.find('.twins').html("<p>" + (twins.join(", ")) + "</p>");
     }
   }

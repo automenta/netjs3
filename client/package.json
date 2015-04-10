@@ -33,16 +33,17 @@
   "devDependencies": {
     "coffee-script": "*",
     "coffeeify": "*",
-    "mocha": "*",
-    "sinon": "~1.x",
+    "del": "^1.1.1",
     "expect.js": "*",
-    "grunt": "latest",
-    "grunt-browserify": "latest",
-    "grunt-contrib-watch": "latest",
-    "grunt-mocha-test": "latest",
-    "grunt-contrib-clean": "latest",
-    "grunt-contrib-uglify": "latest",
-    "grunt-git-authors": "latest"
+    "gulp": "^3.8.11",
+    "gulp-browserify": "^0.5.1",
+    "gulp-clean": "^0.3.1",
+    "gulp-if": "^1.2.5",
+    "gulp-mocha": "^2.0.1",
+    "gulp-rename": "^1.2.2",
+    "gulp-uglify": "^1.2.0",
+    "mocha": "*",
+    "sinon": "~1.x"
   },
   "licenses": [
     {
