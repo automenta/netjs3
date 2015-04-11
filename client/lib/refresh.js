@@ -128,7 +128,7 @@ initMerging = function($page) {
 };
 
 initAddButton = function($page) {
-  return $page.find(".add-factory").live("click", function(evt) {
+  return $page.find(".add-factory").on("click", function(evt) {
     if ($page.hasClass('ghost')) {
       return;
     }

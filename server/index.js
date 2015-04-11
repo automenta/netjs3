@@ -10,6 +10,7 @@
 var JSONStream, Persona, async, bodyParser, cookieParser, defargs, errorHandler, es, exports, express, f, fs, glob, hbs, http, logger, methodOverride, mkdirp, path, pluginsFactory, random, render, sanitize, sessions, sitemapFactory, wiki,
     slice = [].slice;
 
+
 fs = require('fs');
 
 path = require('path');
@@ -95,7 +96,7 @@ render = function (page) {
         }).join('\n'));
 };
 
-module.exports = exports = function (argv) {
+module.exports = exports = function (argv, db) {
     var app, authenticated, cors, favLoc, getOwner, index, is_authenticated, log, loga, oops, ourErrorHandler, owner, pagehandler, persona, remoteGet, setOwner, sitemapLoc, sitemaphandler;
 
     argv = defargs(argv);
@@ -104,6 +105,10 @@ module.exports = exports = function (argv) {
         env: argv.env
     });
     app.startOpts = argv;
+
+
+
+    var fs = db.fs;
 
     log = function () {
         var stuff;
@@ -133,9 +138,9 @@ module.exports = exports = function (argv) {
         return next();
     };
 
-    app.pagehandler = pagehandler = require(argv.database.type)(argv);
+    app.pagehandler = pagehandler = require(argv.database.type)(argv, fs);
 
-    app.sitemaphandler = sitemaphandler = sitemapFactory(argv);
+    app.sitemaphandler = sitemaphandler = sitemapFactory(argv, fs);
 
     owner = '';
     setOwner = function (id, cb) {
@@ -438,6 +443,8 @@ module.exports = exports = function (argv) {
         });
     });
     sitemapLoc = path.join(argv.status, 'sitemap.json');
+
+    //TODO move this to sitemap handler
     app.get('/system/sitemap.json', cors, function (req, res) {
         return fs.exists(sitemapLoc, function (exists) {
             if (exists) {

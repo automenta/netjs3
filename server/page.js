@@ -9,7 +9,7 @@
  */
 var async, events, exports, fs, glob, mkdirp, path, random_id, synopsis;
 
-fs = require('fs');
+//fs = require('fs');
 
 path = require('path');
 
@@ -17,7 +17,7 @@ events = require('events');
 
 glob = require('glob');
 
-mkdirp = require('mkdirp');
+//mkdirp = require('mkdirp');
 
 async = require('async');
 
@@ -25,11 +25,12 @@ random_id = require('./random_id');
 
 synopsis = require('../client').synopsis;
 
-module.exports = exports = function (argv) {
+module.exports = exports = function (argv, fs) {
     var editDate, fileio, itself, load_parse, load_parse_copy, queue, serial, working;
-    mkdirp(argv.db, function (e) {
+    fs.mkdir(argv.db, function (e) {
         if (e) {
-            throw e;
+            console.error('unable to create directory: ' + argv.db)
+            //throw e;
         }
     });
     load_parse = function (loc, cb, annotations) {
@@ -143,7 +144,8 @@ module.exports = exports = function (argv) {
                         return cb(err);
                     });
                 } else {
-                    return mkdirp(path.dirname(loc), function (err) {
+                    //return mkdirp(path.dirname(loc), function (err) {
+                    return fs.mkdir(path.dirname(loc), function (err) {
                         if (err) {
                             cb(err);
                         }

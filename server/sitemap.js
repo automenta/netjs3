@@ -7,174 +7,184 @@
  * Licensed under the MIT license.
  * https://github.com/fedwiki/wiki-node-server/blob/master/LICENSE.txt
  */
-var events, exports, fs, mkdirp, path, synopsis, writeFileAtomic;
+var events, exports, fs, mkdirp, path, synopsis;
 
-fs = require('fs');
 
 path = require('path');
 
 events = require('events');
 
-writeFileAtomic = require('write-file-atomic');
+//writeFileAtomic = require('write-file-atomic');
 
 mkdirp = require('mkdirp');
 
 synopsis = require('../client').synopsis;
 
-module.exports = exports = function(argv) {
-  var itself, lastEdit, queue, serial, sitemap, sitemapLoc, sitemapPageHandler, sitemapRestore, sitemapSave, sitemapTimeoutHandler, sitemapTimeoutMs, sitemapUpdate, working;
-  sitemap = [];
-  queue = [];
-  sitemapPageHandler = null;
-  sitemapTimeoutMs = 1200000;
-  sitemapTimeoutHandler = null;
-  sitemapLoc = path.join(argv.status, 'sitemap.json');
-  working = false;
-  lastEdit = function(journal) {
-    var action, i, ref;
-    ref = journal || [];
-    for (i = ref.length - 1; i >= 0; i += -1) {
-      action = ref[i];
-      if (action.date && action.type !== 'fork') {
-        return action.date;
-      }
-    }
-    return void 0;
-  };
-  sitemapUpdate = function(file, page, cb) {
-    var entry, idx, slugs;
-    entry = {
-      'slug': file,
-      'title': page.title,
-      'date': lastEdit(page.journal),
-      'synopsis': synopsis(page)
-    };
-    slugs = sitemap.map(function(page) {
-      return page.slug;
-    });
-    idx = slugs.indexOf(file);
-    if (~idx) {
-      sitemap[idx] = entry;
-    } else {
-      sitemap.push(entry);
-    }
-    return cb();
-  };
-  sitemapSave = function(sitemap, cb) {
-    return fs.exists(argv.status, function(exists) {
-      if (exists) {
-        return writeFileAtomic(sitemapLoc, JSON.stringify(sitemap), function(e) {
-          if (e) {
-            return cb(e);
-          }
-          return cb();
-        });
-      } else {
-        return mkdirp(argv.status, function() {
-          return writeFileAtomic(sitemapLoc, JSON.stringify(sitemap), function(e) {
-            if (e) {
-              return cb(e);
-            }
-            return cb();
-          });
-        });
-      }
-    });
-  };
-  sitemapRestore = function(cb) {
-    return fs.exists(sitemapLoc, function(exists) {
-      if (exists) {
-        return fs.readFile(sitemapLoc, function(err, data) {
-          var e;
-          if (err) {
-            return cb(err);
-          }
-          try {
-            sitemap = JSON.parse(data);
-          } catch (_error) {
-            e = _error;
-            return cb(e);
-          }
-          return process.nextTick(function() {
-            return serial(queue.shift());
-          });
-        });
-      } else {
-        return itself.createSitemap(sitemapPageHandler);
-      }
-    });
-  };
-  serial = function(item) {
-    if (item) {
-      itself.start();
-      return sitemapUpdate(item.file, item.page, function(e) {
-        return process.nextTick(function() {
-          return serial(queue.shift());
-        });
-      });
-    } else {
-      return sitemapSave(sitemap, function(e) {
-        if (e) {
-          console.log("Problems saving sitemap: " + e);
-        }
-        return itself.stop();
-      });
-    }
-  };
-  itself = new events.EventEmitter;
-  itself.start = function() {
-    clearTimeout(sitemapTimeoutHandler);
-    working = true;
-    return this.emit('working');
-  };
-  itself.stop = function() {
-    var clearsitemap;
-    clearsitemap = function() {
-      console.log("removing sitemap from memory");
-      return sitemap = [];
-    };
-    sitemapTimeoutHandler = setTimeout(clearsitemap, sitemapTimeoutMs);
+module.exports = exports = function (argv, fs) {
+    var itself, lastEdit, queue, serial, sitemap, sitemapLoc, sitemapPageHandler, sitemapRestore, sitemapSave, sitemapTimeoutHandler, sitemapTimeoutMs, sitemapUpdate, working;
+
+
+
+    sitemap = [];
+    queue = [];
+    sitemapPageHandler = null;
+    sitemapTimeoutMs = 1200000;
+    sitemapTimeoutHandler = null;
+
+    //sitemapLoc = path.join(argv.status, 'sitemap.json');
+    sitemapLoc = 'sitemap.json';
+
     working = false;
-    return this.emit('finished');
-  };
-  itself.isWorking = function() {
-    return working;
-  };
-  itself.createSitemap = function(pagehandler) {
-    itself.start();
-    if (sitemapPageHandler == null) {
-      sitemapPageHandler = pagehandler;
-    }
-    return pagehandler.pages(function(e, newsitemap) {
-      if (e) {
-        console.log("createSitemap: error " + e);
-        itself.stop();
-        return e;
-      }
-      sitemap = newsitemap;
-      return process.nextTick((function() {
-        return serial(queue.shift());
-      }));
-    });
-  };
-  itself.update = function(file, page) {
-    queue.push({
-      file: file,
-      page: page
-    });
-    if (sitemap = [] && !working) {
-      itself.start();
-      return sitemapRestore(function(e) {
-        if (e) {
-          console.log("Problems restoring sitemap: " + e);
+    lastEdit = function (journal) {
+        var action, i, ref;
+        ref = journal || [];
+        for (i = ref.length - 1; i >= 0; i += -1) {
+            action = ref[i];
+            if (action.date && action.type !== 'fork') {
+                return action.date;
+            }
         }
-        return itself.createSitemap(sitemapPageHandler);
-      });
-    } else {
-      if (!working) {
-        return serial(queue.shift());
-      }
-    }
-  };
-  return itself;
+        return void 0;
+    };
+    sitemapUpdate = function (file, page, cb) {
+        var entry, idx, slugs;
+        entry = {
+            'slug': file,
+            'title': page.title,
+            'date': lastEdit(page.journal),
+            'synopsis': synopsis(page)
+        };
+        slugs = sitemap.map(function (page) {
+            return page.slug;
+        });
+        idx = slugs.indexOf(file);
+        if (~idx) {
+            sitemap[idx] = entry;
+        } else {
+            sitemap.push(entry);
+        }
+        return cb();
+    };
+    sitemapSave = function (sitemap, cb) {
+
+        console.log('sitemap saving: ', sitemapLoc);
+        console.log('  ',sitemap);
+
+        //return fs.exists(argv.status, function (exists) {
+        //    if (exists) {
+                return fs.writeFile(sitemapLoc, JSON.stringify(sitemap), function (e) {
+                    console.log('sitemap saved ', e);
+                    if (e) {
+                        return cb(e);
+                    }
+                    return cb();
+                });
+        //    } else {
+        //        return fs.mkdir(argv.status, function () {
+        //            return fs.write(sitemapLoc, JSON.stringify(sitemap), function (e) {
+        //                if (e) {
+        //                    return cb(e);
+        //                }
+        //                return cb();
+        //            });
+        //        });
+        //    }
+        //});
+    };
+    sitemapRestore = function (cb) {
+        return fs.exists(sitemapLoc, function (exists) {
+            if (exists) {
+                return fs.readFile(sitemapLoc, function (err, data) {
+                    var e;
+                    if (err) {
+                        return cb(err);
+                    }
+                    try {
+                        sitemap = JSON.parse(data);
+                    } catch (_error) {
+                        e = _error;
+                        return cb(e);
+                    }
+                    return process.nextTick(function () {
+                        return serial(queue.shift());
+                    });
+                });
+            } else {
+                return itself.createSitemap(sitemapPageHandler);
+            }
+        });
+    };
+    serial = function (item) {
+        if (item) {
+            itself.start();
+            return sitemapUpdate(item.file, item.page, function (e) {
+                return process.nextTick(function () {
+                    return serial(queue.shift());
+                });
+            });
+        } else {
+            return sitemapSave(sitemap, function (e) {
+                if (e) {
+                    console.log("Problems saving sitemap: " + e);
+                }
+                return itself.stop();
+            });
+        }
+    };
+    itself = new events.EventEmitter;
+    itself.start = function () {
+        clearTimeout(sitemapTimeoutHandler);
+        working = true;
+        return this.emit('working');
+    };
+    itself.stop = function () {
+        var clearsitemap;
+        clearsitemap = function () {
+            console.log("removing sitemap from memory");
+            return sitemap = [];
+        };
+        sitemapTimeoutHandler = setTimeout(clearsitemap, sitemapTimeoutMs);
+        working = false;
+        return this.emit('finished');
+    };
+    itself.isWorking = function () {
+        return working;
+    };
+    itself.createSitemap = function (pagehandler) {
+        itself.start();
+        if (sitemapPageHandler == null) {
+            sitemapPageHandler = pagehandler;
+        }
+        return pagehandler.pages(function (e, newsitemap) {
+            if (e) {
+                console.log("createSitemap: error " + e);
+                itself.stop();
+                return e;
+            }
+            sitemap = newsitemap;
+            return process.nextTick((function () {
+                return serial(queue.shift());
+            }));
+        });
+    };
+    itself.update = function (file, page) {
+        queue.push({
+            file: file,
+            page: page
+        });
+        if (sitemap = [] && !working) {
+            itself.start();
+            return sitemapRestore(function (e) {
+                if (e) {
+                    console.log("Problems restoring sitemap: " + e);
+                }
+                return itself.createSitemap(sitemapPageHandler);
+            });
+        } else {
+            if (!working) {
+                return serial(queue.shift());
+            }
+        }
+    };
+    return itself;
 };

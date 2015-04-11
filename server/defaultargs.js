@@ -20,12 +20,15 @@ module.exports = function (argv) {
     argv || (argv = {});
     argv.root || (argv.root = __dirname);
     argv.packageDir || (argv.packageDir = path.join(argv.root, ".."));
-    argv.port || (argv.port = 3000);
+    argv.port || (argv.port = 8080);
     argv.home || (argv.home = 'index');
-    argv.data || (argv.data = path.join(getUserHome(), '.wiki'));
-    argv.client || (argv.client = __dirname + '/../client')//path.join(argv.packageDir, 'client', 'client'));
-    argv.db || (argv.db = path.join(argv.data, 'pages'));
-    argv.status || (argv.status = path.join(argv.data, 'status'));
+
+    //argv.data || (argv.data = path.join(getUserHome(), '.wiki'));
+    argv.data || (argv.data = 'db'); //path.join(getUserHome(), '.wiki'),
+
+    argv.client || (argv.client = __dirname + '/../client'); //path.join(argv.packageDir, 'client', 'client'));
+    //argv.db || (argv.db = path.join(argv.data, 'pages'));
+    argv.status || (argv.status = argv.data); //path.join(argv.data, 'status'));
     argv.env || (argv.env = "development");
     if (argv.port !== 80) {
         argv.url || (argv.url = 'http://localhost' + (':' + argv.port));
@@ -51,7 +54,7 @@ module.exports = function (argv) {
     argv.packageDir = path.resolve(argv.packageDir);
     argv.data = path.resolve(argv.data);
     argv.client = path.resolve(argv.client);
-    argv.db = path.resolve(argv.db);
+
     argv.status = path.resolve(argv.status);
     argv.id = path.resolve(argv.id);
     if (/node_modules/.test(argv.data)) {

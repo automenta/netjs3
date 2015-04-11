@@ -65,10 +65,8 @@ argv = optimist.usage('Usage: $0').options('url', {
 }).argv;
 
 config = cc(argv, argv.config, 'config.json', path.join(__dirname, '..', 'config.json'), cc.env('wiki_'), {
-    port: 8080,
     root: __dirname, //path.dirname(require.resolve('wiki-server')),
     home: 'index',
-    data: 'db', //path.join(getUserHome(), '.wiki'),
     packageDir: path.resolve(path.join(__dirname, 'node_modules'))
 }).store;
 
@@ -93,11 +91,29 @@ if (argv.help) {
     console.log('netjs3 cluster: navigate to a specific server to start it.');
     farm(config);
 } else {
-    app = server(config);
-    app.on('owner-set', function (e) {
-        var serv;
-        serv = app.listen(app.startOpts.port, app.startOpts.host);
-        console.log("netjs3 on:", app.startOpts.port, "in mode:", app.settings.env);
-        return app.emit('running-serv', serv);
+
+    //var db = new DB(argv.data);
+    argv.data = 'netention';
+    argv.db = '';
+
+    var db = require('./server/p2p.js')({
+        d: argv.data,
+        m: true,
+        dbpath: "netention",
+        init: function () {
+            "use strict";
+            console.log('P2PDATABASE', db);
+            db.fs = require('level-filesystem')(db);
+
+
+            app = server(config, db);
+            app.on('owner-set', function (e) {
+                var serv;
+                serv = app.listen(app.startOpts.port, app.startOpts.host);
+                console.log("netjs3 on:", app.startOpts.port, "in mode:", app.settings.env);
+                return app.emit('running-serv', serv);
+            });
+
+        }
     });
 }
