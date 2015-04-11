@@ -25,136 +25,123 @@ random_id = require('./random_id');
 
 synopsis = require('../client').synopsis;
 
-module.exports = exports = function (argv, fs) {
-    var editDate, fileio, itself, load_parse, load_parse_copy, queue, serial, working;
-    fs.mkdir(argv.db, function (e) {
-        if (e) {
-            console.error('unable to create directory: ' + argv.db)
-            //throw e;
+module.exports = exports = function (argv, db) {
+    var editDate, fileio, itself, load_parse, queue, serial, working;
+
+    parse = function(doc, cb, annotations) {
+        try {
+            page = JSON.parse(data);
+        } catch (_error) {
+            e = _error;
+            return cb(e);
         }
-    });
+        for (key in annotations) {
+            val = annotations[key];
+            page[key] = val;
+        }
+        return cb(null, page);
+    }
+
     load_parse = function (loc, cb, annotations) {
         if (annotations == null) {
             annotations = {};
         }
-        return fs.readFile(loc, function (err, data) {
+
+
+        db.get(loc, function(err, doc) {
             var e, key, page, val;
             if (err) {
                 return cb(err);
             }
-            try {
-                page = JSON.parse(data);
-            } catch (_error) {
-                e = _error;
-                return cb(e);
-            }
-            for (key in annotations) {
-                val = annotations[key];
-                page[key] = val;
-            }
-            return cb(null, page);
+            parse(doc, cb, annotations);
         });
     };
-    load_parse_copy = function (defloc, file, cb) {
-        return fs.readFile(defloc, function (err, data) {
-            var e, page;
-            if (err) {
-                cb(err);
-            }
-            try {
-                page = JSON.parse(data);
-            } catch (_error) {
-                e = _error;
-                return cb(e);
-            }
-            cb(null, page);
-            return itself.put(file, page, function (err) {
-                if (err) {
-                    return cb(err);
-                }
-            });
-        });
-    };
+    //load_parse_copy = function (defloc, file, cb) {
+    //    return fs.readFile(defloc, function (err, data) {
+    //        var e, page;
+    //        if (err) {
+    //            cb(err);
+    //        }
+    //        try {
+    //            page = JSON.parse(data);
+    //        } catch (_error) {
+    //            e = _error;
+    //            return cb(e);
+    //        }
+    //        cb(null, page);
+    //        return itself.put(file, page, function (err) {
+    //            if (err) {
+    //                return cb(err);
+    //            }
+    //        });
+    //    });
+    //};
+
     queue = [];
     fileio = function (file, page, cb) {
         var loc;
-        loc = path.join(argv.db, file);
+
         if (page == null) {
-            return fs.exists(loc, (function (_this) {
-                return function (exists) {
-                    var defloc;
-                    if (exists) {
-                        return load_parse(loc, cb);
-                    } else {
-                        defloc = path.join(argv.root, 'default-data', 'pages', file);
-                        return fs.exists(defloc, function (exists) {
-                            if (exists) {
-                                return load_parse(defloc, cb);
-                            } else {
-                                return glob("wiki-plugin-*/pages", {
-                                    cwd: argv.packageDir
-                                }, function (e, plugins) {
-                                    var giveUp, i, len, plugin, results;
-                                    if (e) {
-                                        return cb(e);
-                                    }
-                                    if (plugins.length === 0) {
-                                        cb(null, 'Page not found', 404);
-                                    }
-                                    giveUp = (function () {
-                                        var count;
-                                        count = plugins.length;
-                                        return function () {
-                                            count -= 1;
-                                            if (count === 0) {
-                                                return cb(null, 'Page not found', 404);
-                                            }
-                                        };
-                                    })();
-                                    results = [];
-                                    for (i = 0, len = plugins.length; i < len; i++) {
-                                        plugin = plugins[i];
-                                        results.push((function () {
-                                            var pluginName, pluginloc;
-                                            pluginName = plugin.slice(12, -6);
-                                            pluginloc = path.join(argv.packageDir, plugin, file);
-                                            return fs.exists(pluginloc, function (exists) {
-                                                if (exists) {
-                                                    return load_parse(pluginloc, cb, {
-                                                        plugin: pluginName
-                                                    });
-                                                } else {
-                                                    return giveUp();
-                                                }
-                                            });
-                                        })());
-                                    }
-                                    return results;
-                                });
-                            }
-                        });
-                    }
-                };
-            })(this));
+
+            return db.get(loc, function (err, doc) {
+                var defloc;
+                if (!err) {
+                    return parse(loc, cb);
+                } else {
+                    cb(err);
+                }
+                        //defloc = path.join(argv.root, 'default-data', 'pages', file);
+                        //return fs.exists(defloc, function (exists) {
+                        //    if (exists) {
+                        //        return load_parse(defloc, cb);
+                        //    } else {
+                        //        return glob("wiki-plugin-*/pages", {
+                        //            cwd: argv.packageDir
+                        //        }, function (e, plugins) {
+                        //            var giveUp, i, len, plugin, results;
+                        //            if (e) {
+                        //                return cb(e);
+                        //            }
+                        //            if (plugins.length === 0) {
+                        //                cb(null, 'Page not found', 404);
+                        //            }
+                        //            giveUp = (function () {
+                        //                var count;
+                        //                count = plugins.length;
+                        //                return function () {
+                        //                    count -= 1;
+                        //                    if (count === 0) {
+                        //                        return cb(null, 'Page not found', 404);
+                        //                    }
+                        //                };
+                        //            })();
+                        //            results = [];
+                        //            for (i = 0, len = plugins.length; i < len; i++) {
+                        //                plugin = plugins[i];
+                        //                results.push((function () {
+                        //                    var pluginName, pluginloc;
+                        //                    pluginName = plugin.slice(12, -6);
+                        //                    pluginloc = path.join(argv.packageDir, plugin, file);
+                        //                    return fs.exists(pluginloc, function (exists) {
+                        //                        if (exists) {
+                        //                            return load_parse(pluginloc, cb, {
+                        //                                plugin: pluginName
+                        //                            });
+                        //                        } else {
+                        //                            return giveUp();
+                        //                        }
+                        //                    });
+                        //                })());
+                        //            }
+                        //            return results;
+                        //        });
+                        //    }
+                        //});
+                    //}
+            });
         } else {
             page = JSON.stringify(page, null, 2);
-            return fs.exists(path.dirname(loc), function (exists) {
-                if (exists) {
-                    return fs.writeFile(loc, page, function (err) {
-                        return cb(err);
-                    });
-                } else {
-                    //return mkdirp(path.dirname(loc), function (err) {
-                    return fs.mkdir(path.dirname(loc), function (err) {
-                        if (err) {
-                            cb(err);
-                        }
-                        return fs.writeFile(loc, page, function (err) {
-                            return cb(err);
-                        });
-                    });
-                }
-            });
+            db.set(loc, page, cb);
         }
     };
     working = false;
@@ -215,7 +202,8 @@ module.exports = exports = function (argv, fs) {
         return void 0;
     };
     itself.pages = function (cb) {
-        return fs.readdir(argv.db, function (e, files) {
+        //TODO optimize this query
+        return db.getAll(function(e, files) {
             var doSitemap;
             if (e) {
                 return cb(e);

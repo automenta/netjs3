@@ -7,7 +7,7 @@
  * Licensed under the MIT license.
  * https://github.com/fedwiki/wiki-node-server/blob/master/LICENSE.txt
  */
-var events, exports, fs, mkdirp, path, synopsis;
+var events, exports, path, synopsis;
 
 
 path = require('path');
@@ -16,11 +16,11 @@ events = require('events');
 
 //writeFileAtomic = require('write-file-atomic');
 
-mkdirp = require('mkdirp');
+//mkdirp = require('mkdirp');
 
 synopsis = require('../client').synopsis;
 
-module.exports = exports = function (argv, fs) {
+module.exports = exports = function (argv, db) {
     var itself, lastEdit, queue, serial, sitemap, sitemapLoc, sitemapPageHandler, sitemapRestore, sitemapSave, sitemapTimeoutHandler, sitemapTimeoutMs, sitemapUpdate, working;
 
 
@@ -66,53 +66,59 @@ module.exports = exports = function (argv, fs) {
         return cb();
     };
     sitemapSave = function (sitemap, cb) {
+        //NOT NEEDED - will be replaced with a DB query
+        cb();
 
-        console.log('sitemap saving: ', sitemapLoc);
-        console.log('  ',sitemap);
-
-        //return fs.exists(argv.status, function (exists) {
-        //    if (exists) {
-                return fs.writeFile(sitemapLoc, JSON.stringify(sitemap), function (e) {
-                    console.log('sitemap saved ', e);
-                    if (e) {
-                        return cb(e);
-                    }
-                    return cb();
-                });
-        //    } else {
-        //        return fs.mkdir(argv.status, function () {
-        //            return fs.write(sitemapLoc, JSON.stringify(sitemap), function (e) {
-        //                if (e) {
-        //                    return cb(e);
-        //                }
-        //                return cb();
-        //            });
+        //
+        //console.log('sitemap saving: ', sitemapLoc);
+        //console.log('  ',sitemap);
+        //
+        ////return fs.exists(argv.status, function (exists) {
+        ////    if (exists) {
+        //        return fs.writeFile(sitemapLoc, JSON.stringify(sitemap), function (e) {
+        //            console.log('sitemap saved ', e);
+        //            if (e) {
+        //                return cb(e);
+        //            }
+        //            return cb();
         //        });
-        //    }
-        //});
+        ////    } else {
+        ////        return fs.mkdir(argv.status, function () {
+        ////            return fs.write(sitemapLoc, JSON.stringify(sitemap), function (e) {
+        ////                if (e) {
+        ////                    return cb(e);
+        ////                }
+        ////                return cb();
+        ////            });
+        ////        });
+        ////    }
+        ////});
     };
     sitemapRestore = function (cb) {
-        return fs.exists(sitemapLoc, function (exists) {
-            if (exists) {
-                return fs.readFile(sitemapLoc, function (err, data) {
-                    var e;
-                    if (err) {
-                        return cb(err);
-                    }
-                    try {
-                        sitemap = JSON.parse(data);
-                    } catch (_error) {
-                        e = _error;
-                        return cb(e);
-                    }
-                    return process.nextTick(function () {
-                        return serial(queue.shift());
-                    });
-                });
-            } else {
-                return itself.createSitemap(sitemapPageHandler);
-            }
-        });
+        //TODO REPLACE WITH DB QUERY
+        cb({});
+        //
+        //return fs.exists(sitemapLoc, function (exists) {
+        //    if (exists) {
+        //        return fs.readFile(sitemapLoc, function (err, data) {
+        //            var e;
+        //            if (err) {
+        //                return cb(err);
+        //            }
+        //            try {
+        //                sitemap = JSON.parse(data);
+        //            } catch (_error) {
+        //                e = _error;
+        //                return cb(e);
+        //            }
+        //            return process.nextTick(function () {
+        //                return serial(queue.shift());
+        //            });
+        //        });
+        //    } else {
+        //        return itself.createSitemap(sitemapPageHandler);
+        //    }
+        //});
     };
     serial = function (item) {
         if (item) {

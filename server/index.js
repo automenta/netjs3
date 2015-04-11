@@ -107,9 +107,6 @@ module.exports = exports = function (argv, db) {
     app.startOpts = argv;
 
 
-
-    var fs = db.fs;
-
     log = function () {
         var stuff;
         stuff = 1 <= arguments.length ? slice.call(arguments, 0) : [];
@@ -138,34 +135,37 @@ module.exports = exports = function (argv, db) {
         return next();
     };
 
-    app.pagehandler = pagehandler = require(argv.database.type)(argv, fs);
 
-    app.sitemaphandler = sitemaphandler = sitemapFactory(argv, fs);
+    app.pagehandler = pagehandler = require(argv.database.type)(argv, db);
+
+    app.sitemaphandler = sitemaphandler = sitemapFactory(argv, db);
 
     owner = '';
     setOwner = function (id, cb) {
-        return fs.exists(argv.id, function (exists) {
-            if (exists) {
-                return fs.readFile(argv.id, function (err, data) {
-                    if (err) {
-                        return cb(err);
-                    }
-                    owner += data;
-                    return cb();
-                });
-            } else if (id) {
-                return fs.writeFile(argv.id, id, function (err) {
-                    if (err) {
-                        return cb(err);
-                    }
-                    loga("Claimed by " + id);
-                    owner = id;
-                    return cb();
-                });
-            } else {
-                return cb();
-            }
-        });
+        owner = id;
+        return cb();
+        //return fs.exists(argv.id, function (exists) {
+        //    if (exists) {
+        //        return fs.readFile(argv.id, function (err, data) {
+        //            if (err) {
+        //                return cb(err);
+        //            }
+        //            owner += data;
+        //            return cb();
+        //        });
+        //    } else if (id) {
+        //        return fs.writeFile(argv.id, id, function (err) {
+        //            if (err) {
+        //                return cb(err);
+        //            }
+        //            loga("Claimed by " + id);
+        //            owner = id;
+        //            return cb();
+        //        });
+        //    } else {
+        //        return cb();
+        //    }
+        //});
     };
     cors = function (req, res, next) {
         res.header('Access-Control-Allow-Origin', '*');
@@ -351,6 +351,7 @@ module.exports = exports = function (argv, db) {
     app.get(/system\/factories.json/, function (req, res) {
         res.status(200);
         res.header('Content-Type', 'application/json');
+        //TODO cache this
         return glob(path.join(argv.packageDir, 'wiki-plugin-*', 'factory.json'), function (e, files) {
             if (e) {
                 return res.e(e);
@@ -380,10 +381,14 @@ module.exports = exports = function (argv, db) {
             return res.status(status || 200).send(page);
         });
     });
-    favLoc = path.join(argv.status, 'favicon.png');
-    app.get('/favicon.png', cors, function (req, res) {
-        return res.sendFile(favLoc);
-    });
+
+
+    //favLoc = path.join(argv.status, 'favicon.png');
+    //app.get('/favicon.png', cors, function (req, res) {
+    //    return res.sendFile(favLoc);
+    //});
+
+
     authenticated = function (req, res, next) {
         if (req.isAuthenticated()) {
             return next();
@@ -392,43 +397,42 @@ module.exports = exports = function (argv, db) {
             return res.send(403);
         }
     };
-    app.post('/favicon.png', authenticated, function (req, res) {
-        var buf, favicon;
-        favicon = req.body.image.replace(/^data:image\/png;base64,/, "");
-        buf = new Buffer(favicon, 'base64');
-        return fs.exists(argv.status, function (exists) {
-            if (exists) {
-                return fs.writeFile(favLoc, buf, function (e) {
-                    if (e) {
-                        return res.e(e);
-                    }
-                    return res.send('Favicon Saved');
-                });
-            } else {
-                return mkdirp(argv.status, function () {
-                    return fs.writeFile(favLoc, buf, function (e) {
-                        if (e) {
-                            return res.e(e);
-                        }
-                        return res.send('Favicon Saved');
-                    });
-                });
-            }
-        });
-    });
+    //app.post('/favicon.png', authenticated, function (req, res) {
+    //    var buf, favicon;
+    //    favicon = req.body.image.replace(/^data:image\/png;base64,/, "");
+    //    buf = new Buffer(favicon, 'base64');
+    //    return fs.exists(argv.status, function (exists) {
+    //        if (exists) {
+    //            return fs.writeFile(favLoc, buf, function (e) {
+    //                if (e) {
+    //                    return res.e(e);
+    //                }
+    //                return res.send('Favicon Saved');
+    //            });
+    //        } else {
+    //            return mkdirp(argv.status, function () {
+    //                return fs.writeFile(favLoc, buf, function (e) {
+    //                    if (e) {
+    //                        return res.e(e);
+    //                    }
+    //                    return res.send('Favicon Saved');
+    //                });
+    //            });
+    //        }
+    //    });
+    //});
     app.get(/^\/remote\/([a-zA-Z0-9:\.-]+\/favicon.png)$/, function (req, res) {
         var remotefav;
         remotefav = "http://" + req.params[0];
         return res.redirect(remotefav);
     });
+
     app.get('/system/slugs.json', cors, function (req, res) {
-        return fs.readdir(argv.db, function (e, files) {
-            if (e) {
-                return res.e(e);
-            }
-            return res.send(files);
+        db.getTagCounts(function(result) {
+            res.send(result);
         });
     });
+
     app.get('/system/plugins.json', cors, function (req, res) {
         return glob("wiki-plugin-*", {
             cwd: argv.packageDir
@@ -442,22 +446,23 @@ module.exports = exports = function (argv, db) {
             return res.send(files);
         });
     });
-    sitemapLoc = path.join(argv.status, 'sitemap.json');
+    //sitemapLoc = path.join(argv.status, 'sitemap.json');
 
     //TODO move this to sitemap handler
     app.get('/system/sitemap.json', cors, function (req, res) {
-        return fs.exists(sitemapLoc, function (exists) {
-            if (exists) {
-                return res.sendFile(sitemapLoc);
-            } else {
-                if (!sitemaphandler.isWorking()) {
-                    sitemaphandler.createSitemap(pagehandler);
-                }
-                return sitemaphandler.once('finished', function () {
-                    return res.sendFile(sitemapLoc);
-                });
-            }
-        });
+        return {};
+        //return fs.exists(sitemapLoc, function (exists) {
+        //    if (exists) {
+        //        return res.sendFile(sitemapLoc);
+        //    } else {
+        //        if (!sitemaphandler.isWorking()) {
+        //            sitemaphandler.createSitemap(pagehandler);
+        //        }
+        //        return sitemaphandler.once('finished', function () {
+        //            return res.sendFile(sitemapLoc);
+        //        });
+        //    }
+        //});
     });
     app.get('/system/export.json', cors, function (req, res) {
         return pagehandler.pages(function (e, sitemap) {
@@ -593,12 +598,12 @@ module.exports = exports = function (argv, db) {
     app.get('/', function (req, res) {
         return res.redirect(index);
     });
-    setOwner(null, function (e) {
-        if (e) {
-            throw e;
-        }
-        return app.emit('owner-set');
-    });
+    //setOwner(null, function (e) {
+    //    if (e) {
+    //        throw e;
+    //    }
+    //    return app.emit('owner-set');
+    //});
     app.on('running-serv', function (serv) {
 
         /* Plugins */
@@ -612,5 +617,6 @@ module.exports = exports = function (argv, db) {
         /* Sitemap */
         return sitemaphandler.createSitemap(pagehandler);
     });
+
     return app;
 };

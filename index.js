@@ -92,28 +92,20 @@ if (argv.help) {
     farm(config);
 } else {
 
-    //var db = new DB(argv.data);
-    argv.data = 'netention';
-    argv.db = '';
 
-    var db = require('./server/p2p.js')({
-        d: argv.data,
-        m: true,
-        dbpath: "netention",
-        init: function () {
-            "use strict";
-            console.log('P2PDATABASE', db);
-            db.fs = require('level-filesystem')(db);
+    argv.db = 'netention';
+    argv.dbpath = 'db';
+
+    var db = require('./server/p2pdb')(argv, function (db) {
+
+        app = server(config, db);
 
 
-            app = server(config, db);
-            app.on('owner-set', function (e) {
-                var serv;
-                serv = app.listen(app.startOpts.port, app.startOpts.host);
-                console.log("netjs3 on:", app.startOpts.port, "in mode:", app.settings.env);
-                return app.emit('running-serv', serv);
-            });
+        console.log('listening..');
+        var serv = app.listen(app.startOpts.port, app.startOpts.host);
+        console.log("netjs3 on:", app.startOpts.port, "in mode:", app.settings.env);
+        return app.emit('running-serv', serv);
 
-        }
     });
+
 }
